@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import Web3 from 'web3';
@@ -14,22 +14,48 @@ const NewUpload = () => {
     const [weightage, setWeightage] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            // Check file size (max 10MB)
+            if (selectedFile.size > 10 * 1024 * 1024) {
+                setError('File size should be less than 10MB');
+                return;
+            }
+            // Check file type
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(selectedFile.type)) {
+                setError('Only PDF, JPEG, JPG, and PNG files are allowed');
+                return;
+            }
+            setFile(selectedFile);
+            setError('');
+        }
     };
 
     const handleUpload = async (e) => {
         e.preventDefault();
         setMessage('');
+        setError('');
         
-        if (!file || !docType || !weightage) {
-            setMessage('Please fill in all fields.');
+        if (!file) {
+            setError('Please select a file');
+            return;
+        }
+        if (!docType.trim()) {
+            setError('Please enter document type');
+            return;
+        }
+        if (!weightage) {
+            setError('Please enter weightage');
             return;
         }
         if (weightage < 1 || weightage > 10) {
-            setMessage('Weightage must be between 1 and 10.');
+            setError('Weightage must be between 1 and 10');
             return;
         }
         
@@ -52,10 +78,14 @@ const NewUpload = () => {
             setMessage('File uploaded successfully!');
             setTimeout(() => navigate('/profile'), 2000);
         } catch (error) {
-            console.error(error);
-            setMessage('Error uploading document.');
+            console.error('Upload error:', error);
+            setError('Error uploading document. Please try again.');
         }
         setLoading(false);
+    };
+
+    const handleFileInputClick = () => {
+        fileInputRef.current.click();
     };
 
     return (
@@ -81,26 +111,50 @@ const NewUpload = () => {
                         </UploadHeader>
 
                         <Form onSubmit={handleUpload}>
+                            {error && (
+                                <ErrorCard
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                >
+                                    <ErrorIcon>⚠️</ErrorIcon>
+                                    <ErrorText>{error}</ErrorText>
+                                </ErrorCard>
+                            )}
+
                             {message && (
                                 <MessageCard
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                 >
-                                    {message}
+                                    <SuccessIcon>✅</SuccessIcon>
+                                    <MessageText>{message}</MessageText>
                                 </MessageCard>
                             )}
 
                             <InputGroup>
                                 <InputLabel>Document File</InputLabel>
                                 <FileInput
+                                    ref={fileInputRef}
                                     type="file"
                                     onChange={handleFileChange}
-                                    required
                                     accept=".pdf,.jpg,.jpeg,.png"
                                 />
-                                <FileInputLabel>
-                                    {file ? file.name : 'Choose a file'}
+                                <FileInputLabel onClick={handleFileInputClick}>
+                                    {file ? (
+                                        <FileInfo>
+                                            <FileIcon>📄</FileIcon>
+                                            <FileName>{file.name}</FileName>
+                                            <FileSize>{(file.size / 1024 / 1024).toFixed(2)} MB</FileSize>
+                                        </FileInfo>
+                                    ) : (
+                                        <FilePlaceholder>
+                                            <UploadIcon>📤</UploadIcon>
+                                            <span>Click to choose a file</span>
+                                            <FileTypeHint>Supported formats: PDF, JPEG, PNG</FileTypeHint>
+                                        </FilePlaceholder>
+                                    )}
                                 </FileInputLabel>
                             </InputGroup>
 
@@ -346,4 +400,66 @@ const MessageCard = styled(motion.div)`
     color: #ffffff;
     text-align: center;
     margin-bottom: 1rem;
+`;
+
+const ErrorCard = styled(motion.div)`
+    padding: 1rem;
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    border-radius: 8px;
+    color: #ff3b30;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+`;
+
+const ErrorIcon = styled.span`
+    font-size: 1.2rem;
+`;
+
+const ErrorText = styled.span`
+    font-size: 0.9rem;
+`;
+
+const SuccessIcon = styled.span`
+    font-size: 1.2rem;
+`;
+
+const MessageText = styled.span`
+    font-size: 0.9rem;
+`;
+
+const FileInfo = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+`;
+
+const FileIcon = styled.span`
+    font-size: 1.2rem;
+`;
+
+const FileName = styled.span`
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`;
+
+const FileSize = styled.span`
+    color: #8B949E;
+    font-size: 0.8rem;
+`;
+
+const FilePlaceholder = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+`;
+
+const FileTypeHint = styled.span`
+    font-size: 0.8rem;
+    color: #8B949E;
 `;

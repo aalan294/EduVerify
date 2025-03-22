@@ -45,25 +45,25 @@ const Home = () => {
         <Container>
             <Background3D />
             <ContentWrapper>
-                <Navbar>
+            <Navbar>
                     <LogoContainer>
-                        <Title>EduVerify</Title>
+                <Title>EduVerify</Title>
                         <Tagline>Secure Educational Verification</Tagline>
                     </LogoContainer>
-                    <WalletButton onClick={handleConnectWallet} disabled={loading}>
-                        {loading ? 'Connecting...' : account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect Wallet'}
-                    </WalletButton>
-                </Navbar>
+                <WalletButton onClick={handleConnectWallet} disabled={loading}>
+                    {loading ? 'Connecting...' : account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect Wallet'}
+                </WalletButton>
+            </Navbar>
 
-                <MainContent>
+            <MainContent>
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                         style={{ y, opacity }}
                     >
-                        <Heading>Secure & Verified Educational Documents on Blockchain</Heading>
-                        <SubHeading>Upload, Verify, and Share Your Credentials with Trust</SubHeading>
+                <Heading>Secure & Verified Educational Documents on Blockchain</Heading>
+                <SubHeading>Upload, Verify, and Share Your Credentials with Trust</SubHeading>
                     </motion.div>
 
                     <FeaturesGrid>
@@ -119,7 +119,7 @@ const Home = () => {
                     >
                         Get Started Now
                     </CTAButton>
-                </MainContent>
+            </MainContent>
 
                 <StatsSection>
                     <StatsTitle>Trusted by Educational Institutions Worldwide</StatsTitle>
