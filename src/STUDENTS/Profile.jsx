@@ -2,81 +2,191 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Web3 from "web3";
 import styled from "styled-components";
+import { motion } from "framer-motion";
 import { abi } from "../abi";
 import { contractAddress } from "../contractAddress";
+import Background3D from "../components/Background3D";
 
 // Styled Components
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #121212;
-  color: white;
-  padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0D1117;
+    color: white;
+    overflow: hidden;
+    position: relative;
 `;
 
-const Card = styled.div`
-  width: 100%;
-  max-width: 500px;
-  padding: 20px;
-  background: #1e1e1e;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
-  position: relative;
+const ContentWrapper = styled.div`
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+`;
+
+const Navbar = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(13, 17, 23, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid rgba(88, 101, 242, 0.1);
+`;
+
+const LogoContainer = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 const Title = styled.h1`
-  font-size: 24px;
-  font-weight: bold;
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #5865F2, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    letter-spacing: -0.5px;
 `;
 
-const ProfileInfo = styled.p`
-  font-size: 16px;
-  margin: 10px 0;
+const Tagline = styled.span`
+    font-size: 14px;
+    color: #8B949E;
+    margin-top: 4px;
 `;
 
-const MenuButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
+const ProfileContainer = styled.div`
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
 `;
 
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 50px;
-  right: 10px;
-  background: #333;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+const ProfileCard = styled(motion.div)`
+    width: 100%;
+    max-width: 800px;
+    padding: 2.5rem;
+    background: rgba(22, 27, 34, 0.7);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(88, 101, 242, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 `;
 
-const MenuItem = styled(Link)`
-  color: white;
-  padding: 8px 12px;
-  text-decoration: none;
-  &:hover {
-    background: #444;
-    border-radius: 5px;
-  }
+const ProfileHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
 `;
 
-const LogoutButton = styled.button`
-  color: white;
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  text-align: left;
-  cursor: pointer;
-  &:hover {
-    background: #444;
-    border-radius: 5px;
-  }
+const ProfileTitle = styled.h2`
+    font-size: 2rem;
+    color: #ffffff;
+    margin: 0;
+`;
+
+const MenuButton = styled(motion.button)`
+    background: rgba(88, 101, 242, 0.1);
+    border: 1px solid rgba(88, 101, 242, 0.2);
+    color: #5865F2;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(88, 101, 242, 0.2);
+        transform: translateY(-2px);
+    }
+`;
+
+const DropdownMenu = styled(motion.div)`
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(22, 27, 34, 0.95);
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 1px solid rgba(88, 101, 242, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+`;
+
+const MenuItem = styled(motion(Link))`
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(88, 101, 242, 0.1);
+        color: #5865F2;
+    }
+`;
+
+const LogoutButton = styled(motion.button)`
+    color: #ffffff;
+    background: none;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(88, 101, 242, 0.1);
+        color: #5865F2;
+    }
+`;
+
+const ProfileInfo = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+`;
+
+const InfoCard = styled(motion.div)`
+    background: rgba(88, 101, 242, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(88, 101, 242, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        background: rgba(88, 101, 242, 0.1);
+    }
+`;
+
+const InfoLabel = styled.div`
+    font-size: 0.9rem;
+    color: #8B949E;
+    margin-bottom: 0.5rem;
+`;
+
+const InfoValue = styled.div`
+    font-size: 1.2rem;
+    color: #ffffff;
+    font-weight: 600;
+    word-break: break-all;
 `;
 
 const Profile = () => {
@@ -130,27 +240,83 @@ const Profile = () => {
 
     return (
         <Container>
-            <Card>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Title>Profile</Title>
-                    <MenuButton onClick={() => setMenuOpen(!menuOpen)}>☰</MenuButton>
-                </div>
+            <Background3D />
+            <ContentWrapper>
+                <Navbar>
+                    <LogoContainer>
+                        <Title>EduVerify</Title>
+                        <Tagline>Secure Educational Verification</Tagline>
+                    </LogoContainer>
+                </Navbar>
 
-                {menuOpen && (
-                    <DropdownMenu>
-                        
-                        <MenuItem to="/">Home</MenuItem>
-                        <MenuItem to="/new-upload">New Upload</MenuItem>
-                        <MenuItem to={`/cert/${uniqueID}`}>Certificates</MenuItem>
-                        <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
-                    </DropdownMenu>
-                )}
+                <ProfileContainer>
+                    <ProfileCard
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <ProfileHeader>
+                            <ProfileTitle>Student Profile</ProfileTitle>
+                            <div style={{ position: 'relative' }}>
+                                <MenuButton
+                                    onClick={() => setMenuOpen(!menuOpen)}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    ☰
+                                </MenuButton>
+                                {menuOpen && (
+                                    <DropdownMenu
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                    >
+                                        <MenuItem to="/">Home</MenuItem>
+                                        <MenuItem to="/new-upload">New Upload</MenuItem>
+                                        <MenuItem to={`/cert/${uniqueID}`}>Certificates</MenuItem>
+                                        <LogoutButton
+                                            onClick={handleLogout}
+                                            whileHover={{ x: 5 }}
+                                        >
+                                            Logout
+                                        </LogoutButton>
+                                    </DropdownMenu>
+                                )}
+                            </div>
+                        </ProfileHeader>
 
-                <ProfileInfo><strong>Name:</strong> {name}</ProfileInfo>
-                <ProfileInfo><strong>Wallet Address:</strong> {account}</ProfileInfo>
-                <ProfileInfo><strong>Unique ID:</strong> {uniqueID}</ProfileInfo>
-                <ProfileInfo><strong>Documents Uploaded:</strong> {docCount}</ProfileInfo>
-            </Card>
+                        <ProfileInfo>
+                            <InfoCard
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                <InfoLabel>Name</InfoLabel>
+                                <InfoValue>{name}</InfoValue>
+                            </InfoCard>
+
+                            <InfoCard
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                <InfoLabel>Wallet Address</InfoLabel>
+                                <InfoValue>{account}</InfoValue>
+                            </InfoCard>
+
+                            <InfoCard
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                <InfoLabel>Unique ID</InfoLabel>
+                                <InfoValue>{uniqueID}</InfoValue>
+                            </InfoCard>
+
+                            <InfoCard
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                <InfoLabel>Documents Uploaded</InfoLabel>
+                                <InfoValue>{docCount}</InfoValue>
+                            </InfoCard>
+                        </ProfileInfo>
+                    </ProfileCard>
+                </ProfileContainer>
+            </ContentWrapper>
         </Container>
     );
 };
