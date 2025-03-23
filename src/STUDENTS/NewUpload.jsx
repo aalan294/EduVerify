@@ -33,24 +33,6 @@ const NewUpload = () => {
                 setError('Only PDF, JPEG, JPG, and PNG files are allowed');
                 return;
             }
-            const formData = new FormData();
-    formData.append("document", selectedFile); 
-    console.log("Sending to forgery detection API:", selectedFile.name, selectedFile.type);
-      
-      const response = await axios.post(
-        "https://forgedimg-api-2.onrender.com/analyze", 
-        formData,
-        {
-          headers: {
-            // No need to set Content-Type, axios sets it automatically with boundary
-          },
-        }
-      );
-      
-      if(response.data.is_forged){
-        alert("forged document!!! koochamey ila?")
-        return;
-      }
           
             setFile(selectedFile);
             setError('');
