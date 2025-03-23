@@ -7,6 +7,7 @@ import { abi } from '../abi'; // Import ABI
 import { contractAddress } from '../contractAddress';
 import { pinata } from '../config'; // Assuming Pinata upload config
 import Background3D from '../components/Background3D';
+import axios from 'axios';
 
 const NewUpload = () => {
     const [file, setFile] = useState(null);
@@ -18,7 +19,7 @@ const NewUpload = () => {
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async(event) => {
         const selectedFile = event.target.files[0];
         if (selectedFile) {
             // Check file size (max 10MB)
@@ -32,6 +33,25 @@ const NewUpload = () => {
                 setError('Only PDF, JPEG, JPG, and PNG files are allowed');
                 return;
             }
+            const formData = new FormData();
+    formData.append("document", selectedFile); 
+    console.log("Sending to forgery detection API:", selectedFile.name, selectedFile.type);
+      
+      const response = await axios.post(
+        "https://forgedimg-api-2.onrender.com/analyze", 
+        formData,
+        {
+          headers: {
+            // No need to set Content-Type, axios sets it automatically with boundary
+          },
+        }
+      );
+      
+      if(response.data.is_forged){
+        alert("forged document!!! koochamey ila?")
+        return;
+      }
+          
             setFile(selectedFile);
             setError('');
         }
@@ -62,6 +82,7 @@ const NewUpload = () => {
         setLoading(true);
         try {
             // Upload file to Pinata
+            
             const response = await pinata.upload.file(file);
             const ipfsHash = response.cid;
             console.log('IPFS Hash:', ipfsHash);
